@@ -5,45 +5,38 @@ import * as authorActions from "../../redux/actions/authorActions";
 import PropTypes from "prop-types";
 import { bindActionCreators } from "redux";
 import CourseList from "./CourseList";
+import { Redirect } from "react-router";
+
 function CoursesPage(props) {
+  const [redirectToAddCourse, setRedirectToAddCourse] = useState(false);
+
   useEffect(() => {
-    if (props.courses === undefined || props.courses.length === 0) {
+    if (props.courses.length === 0) {
       props.actions.loadCourses().catch((e) => {
         alert("Loading courses failed: " + e);
       });
     }
 
-    if (props.authors === undefined || props.authors.length === 0) {
+    if (props.authors.length === 0) {
       props.actions.loadAuthors().catch((e) => {
         alert("Loading authors failed: " + e);
       });
     }
   }, []);
 
-  // const [course, setCourse] = useState({ title: "" });
-
-  // const handleChange = (event) => {
-  //   const course = { ...course, title: event.target.value };
-  //   setCourse(course);
-  // };
-
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   props.actions.createCourse(course);
-  // };
-
   return (
-    // <form onSubmit={handleSubmit}>
     <div>
+      {redirectToAddCourse && <Redirect to="/course" />}
       <h2>Courses</h2>
+
+      <button
+        className="btn btn-primary add-course"
+        onClick={() => setRedirectToAddCourse(true)}
+      >
+        Add Course
+      </button>
+
       <CourseList courses={props.courses} />
-      {/* <h3>Add Course</h3> */}
-      {/* <input type="text" onChange={handleChange} value={course.title} />
-      <input type="submit" value="Save" /> */}
-      {/* {props.courses.map((c) => (
-        <div key={c.title}>{c.title}</div>
-      ))} */}
-      {/* // </form> */}
     </div>
   );
 }
@@ -65,10 +58,11 @@ function mapStateToProps(state) {
             // map through each course and add author name to each course
             return {
               ...c,
-              authorName: state.authors.find((a) => a.id === c.authorId).name,
+              authorName:
+                state.authors.find((a) => a.id === c.authorId).name || null,
             };
           }),
-    author: state.authors,
+    authors: state.authors,
   };
 }
 
